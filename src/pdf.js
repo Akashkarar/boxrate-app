@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 
 // jsPDF's built-in fonts don't include the ₹ glyph, so PDFs use "Rs" instead.
 // The in-app UI keeps showing ₹ everywhere else — this only affects exported PDFs.
-const fmtPdf = (n) => "Rs " + Number(n || 0).toFixed(2);
+const fmtPdf = (n) => "Rs. " + Number(n || 0).toFixed(2);
 
 export function buildOrderPdf({ vendorName, batchDate, items }) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -41,7 +41,14 @@ export function buildOrderPdf({ vendorName, batchDate, items }) {
   autoTable(doc, {
     startY: y + 18,
     margin: { left: marginX, right: marginX },
-    head: [["Box", "Qty", "Unit", "Total"]],
+    head: [
+      [
+        "Box",
+        { content: "Qty", styles: { halign: "right" } },
+        { content: "Unit", styles: { halign: "right" } },
+        { content: "Total", styles: { halign: "right" } },
+      ],
+    ],
     body,
     theme: "plain",
     styles: { fontSize: 10, cellPadding: 7, valign: "top", lineWidth: 0 },
@@ -96,12 +103,12 @@ export function buildOrderPdf({ vendorName, batchDate, items }) {
       // same row.
       const isLastColumn = data.column.index === data.table.columns.length - 1;
       if (isLastColumn) {
-        const lineY = data.cell.y + data.cell.height;
+        const lineY = Math.round(data.cell.y + data.cell.height) + 0.5;
         const left = data.table.settings.margin.left;
         const right = pageWidth - data.table.settings.margin.right;
-        doc.setLineWidth(data.row.section === "head" ? 1 : 0.5);
+        doc.setLineWidth(data.row.section === "head" ? 1 : 0.75);
         doc.setDrawColor(
-          ...(data.row.section === "head" ? [20, 20, 20] : [220, 220, 220]),
+          ...(data.row.section === "head" ? [20, 20, 20] : [200, 200, 200]),
         );
         doc.line(left, lineY, right, lineY);
       }

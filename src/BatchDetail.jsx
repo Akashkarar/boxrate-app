@@ -312,15 +312,13 @@ export default function BatchDetail({
             position: "sticky",
             top: 0,
             zIndex: 20,
-            marginLeft: -12,
-            marginRight: -12,
-            paddingLeft: 12,
-            paddingRight: 12,
+            marginTop: 12,
             paddingTop: "env(safe-area-inset-top)",
             background: "var(--card-bg)",
             backdropFilter: "blur(20px) saturate(160%)",
             WebkitBackdropFilter: "blur(20px) saturate(160%)",
-            borderBottom: "1px solid var(--card-border)",
+            border: "1px solid var(--card-border)",
+            borderRadius: 20,
           }}
         >
           <div style={{ padding: "22px 6px 6px" }}>
