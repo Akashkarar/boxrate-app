@@ -321,14 +321,14 @@ export default function BatchDetail({
             borderRadius: 20,
           }}
         >
-          <div style={{ padding: "22px 6px 6px" }}>
+          <div style={{ padding: "22px 18px 6px" }}>
             <button onClick={onBack} style={backBtnStyle}>
               <ArrowLeft size={14} /> back to dashboard
             </button>
           </div>
           <div
             style={{
-              padding: "0 6px 18px",
+              padding: "0 18px 18px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-end",
