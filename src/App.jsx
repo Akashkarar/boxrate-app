@@ -6,6 +6,8 @@ import {
   Store,
   Sun,
   Moon,
+  LogOut,
+  ShieldCheck,
 } from "lucide-react";
 import CapturePhoto from "./CapturePhoto.jsx";
 import VerifyGrid from "./VerifyGrid.jsx";
@@ -13,6 +15,9 @@ import VendorManager from "./VendorManager.jsx";
 import Dashboard from "./Dashboard.jsx";
 import Orders from "./Orders.jsx";
 import BatchDetail from "./BatchDetail.jsx";
+import Login from "./Login.jsx";
+import Admin from "./Admin.jsx";
+import { useAuth } from "./auth.js";
 
 function useTheme() {
   const [theme, setTheme] = useState(() => {
@@ -33,10 +38,19 @@ function useTheme() {
 
 export default function App() {
   const [theme, setTheme] = useTheme();
-  const [screen, setScreen] = useState("capture"); // capture | verify | vendors | dashboard | orders | batchDetail
+  const { session, profile, loading, signIn, signOut } = useAuth();
+  const [screen, setScreen] = useState("capture"); // capture | verify | vendors | dashboard | orders | batchDetail | admin
   const [extraction, setExtraction] = useState({ rows: null, vendor: null });
   const [openOrder, setOpenOrder] = useState(null); // { vendorId, batchDate } | null
   const [returnScreen, setReturnScreen] = useState("orders"); // where batchDetail's back button goes
+
+  if (loading) {
+    return <div style={{ minHeight: "100vh", background: "var(--page-bg)" }} />;
+  }
+
+  if (!session) {
+    return <Login signIn={signIn} />;
+  }
 
   function handleExtracted(rows, vendor) {
     setExtraction({ rows, vendor });
@@ -50,7 +64,14 @@ export default function App() {
   }
 
   let body;
-  if (screen === "vendors") {
+  if (screen === "admin") {
+    body = (
+      <Admin
+        onBack={() => setScreen("capture")}
+        currentUserId={session.user.id}
+      />
+    );
+  } else if (screen === "vendors") {
     body = <VendorManager onBack={() => setScreen("capture")} />;
   } else if (screen === "batchDetail") {
     body = (
@@ -94,19 +115,37 @@ export default function App() {
   }
 
   const showNav = screen !== "verify";
+  const isAdmin = profile?.role === "admin";
 
   return (
     <>
       {body}
 
-      <button
-        className="no-print"
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        aria-label="Toggle dark mode"
-        style={themeToggleStyle}
-      >
-        {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-      </button>
+      <div className="no-print" style={topRightStackStyle}>
+        {isAdmin && (
+          <button
+            onClick={() => setScreen("admin")}
+            aria-label="Manage users"
+            style={iconStackBtnStyle}
+          >
+            <ShieldCheck size={16} />
+          </button>
+        )}
+        <button
+          onClick={signOut}
+          aria-label="Sign out"
+          style={iconStackBtnStyle}
+        >
+          <LogOut size={16} />
+        </button>
+        <button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          aria-label="Toggle dark mode"
+          style={iconStackBtnStyle}
+        >
+          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+      </div>
 
       {showNav && (
         <nav className="no-print" style={navWrapStyle}>
@@ -185,10 +224,17 @@ const navWrapStyle = {
   margin: "0 auto",
 };
 
-const themeToggleStyle = {
+const topRightStackStyle = {
   position: "fixed",
   top: "calc(14px + env(safe-area-inset-top))",
   right: 14,
+  display: "flex",
+  flexDirection: "column",
+  gap: 8,
+  zIndex: 50,
+};
+
+const iconStackBtnStyle = {
   width: 38,
   height: 38,
   borderRadius: "50%",
@@ -201,6 +247,5 @@ const themeToggleStyle = {
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
-  zIndex: 50,
   boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
 };
