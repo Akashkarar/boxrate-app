@@ -310,7 +310,7 @@ export default function BatchDetail({
           className="no-print"
           style={{
             position: "sticky",
-            top: 0,
+            top: 60,
             zIndex: 20,
             marginTop: 60,
             paddingTop: "env(safe-area-inset-top)",
