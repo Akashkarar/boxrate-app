@@ -312,7 +312,7 @@ export default function BatchDetail({
             position: "sticky",
             top: 0,
             zIndex: 20,
-            marginTop: 12,
+            marginTop: 16,
             paddingTop: "env(safe-area-inset-top)",
             background: "var(--card-bg)",
             backdropFilter: "blur(20px) saturate(160%)",
@@ -578,12 +578,14 @@ export default function BatchDetail({
                 </div>
               </div>
             ))}
+
             <button
               onClick={addBlankRow}
               style={{ ...secondaryBtn, marginBottom: 12 }}
             >
               <Plus size={17} /> Add box
             </button>
+
             <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
               <button
                 onClick={cancelEditing}
@@ -606,6 +608,7 @@ export default function BatchDetail({
                 )}
               </button>
             </div>
+
             <button
               onClick={handleDeleteOrder}
               style={dangerBtn}

@@ -229,7 +229,7 @@ const topRightStackStyle = {
   top: "calc(14px + env(safe-area-inset-top))",
   right: 14,
   display: "flex",
-  flexDirection: "column",
+  flexDirection: "row",
   gap: 8,
   zIndex: 50,
 };

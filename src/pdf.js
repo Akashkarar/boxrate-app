@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 
 // jsPDF's built-in fonts don't include the ₹ glyph, so PDFs use "Rs" instead.
 // The in-app UI keeps showing ₹ everywhere else — this only affects exported PDFs.
-const fmtPdf = (n) => "Rs. " + Number(n || 0).toFixed(2);
+const fmtPdf = (n) => "Rs " + Number(n || 0).toFixed(2);
 
 export function buildOrderPdf({ vendorName, batchDate, items }) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });

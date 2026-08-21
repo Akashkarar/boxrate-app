@@ -134,7 +134,7 @@ export default function CapturePhoto({ onExtracted, onManageVendors }) {
       }}
     >
       <div style={{ maxWidth: 460, margin: "0 auto" }}>
-        <div style={{ padding: "10px 6px 18px" }}>
+        <div style={{ padding: "56px 6px 18px" }}>
           <h1 style={titleStyle}>BoxRate</h1>
           <p style={subtitleStyle}>scan a measurement sheet</p>
         </div>

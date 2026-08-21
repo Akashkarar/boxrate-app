@@ -122,7 +122,7 @@ export default function Dashboard({ onBack }) {
   return (
     <div style={pageStyle}>
       <div className="dash-wrap" style={{ margin: "0 auto" }}>
-        <div style={{ padding: "10px 6px 18px" }}>
+        <div style={{ padding: "56px 6px 18px" }}>
           {onBack && (
             <button onClick={onBack} style={backBtnStyle}>
               <ArrowLeft size={14} /> back
