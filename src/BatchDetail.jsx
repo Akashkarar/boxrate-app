@@ -312,7 +312,7 @@ export default function BatchDetail({
             position: "sticky",
             top: 0,
             zIndex: 20,
-            marginTop: 16,
+            marginTop: 60,
             paddingTop: "env(safe-area-inset-top)",
             background: "var(--card-bg)",
             backdropFilter: "blur(20px) saturate(160%)",

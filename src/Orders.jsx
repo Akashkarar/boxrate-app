@@ -99,7 +99,7 @@ export default function Orders({ onBack, onOpenOrder }) {
   return (
     <div style={pageStyle}>
       <div style={{ maxWidth: 460, margin: "0 auto" }}>
-        <div style={{ padding: "56px 6px 18px" }}>
+        <div style={{ padding: "10px 6px 18px" }}>
           {onBack && (
             <button onClick={onBack} style={backBtnStyle}>
               <ArrowLeft size={14} /> back
