@@ -17,7 +17,11 @@ import Orders from "./Orders.jsx";
 import BatchDetail from "./BatchDetail.jsx";
 import Login from "./Login.jsx";
 import Admin from "./Admin.jsx";
+import Unlock from "./Unlock.jsx";
+import BiometricPrompt from "./BiometricPrompt.jsx";
 import { useAuth } from "./auth.js";
+import { useConfirm } from "./shared.jsx";
+import { isBiometricAvailable, hasRegisteredBiometric } from "./webauthn.js";
 
 function useTheme() {
   const [theme, setTheme] = useState(() => {
@@ -39,10 +43,43 @@ function useTheme() {
 export default function App() {
   const [theme, setTheme] = useTheme();
   const { session, profile, loading, signIn, signOut } = useAuth();
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const [screen, setScreen] = useState("capture"); // capture | verify | vendors | dashboard | orders | batchDetail | admin
   const [extraction, setExtraction] = useState({ rows: null, vendor: null });
   const [openOrder, setOpenOrder] = useState(null); // { vendorId, batchDate } | null
   const [returnScreen, setReturnScreen] = useState("orders"); // where batchDetail's back button goes
+
+  // Biometric unlock gating — resolved once we know who's logged in.
+  const [bioCheck, setBioCheck] = useState(null); // { hasCredential, available } | null while loading
+  const [unlocked, setUnlocked] = useState(
+    () => sessionStorage.getItem("boxrate_unlocked") === "1",
+  );
+  const [showBioPrompt, setShowBioPrompt] = useState(false);
+
+  useEffect(() => {
+    if (!session) {
+      setBioCheck(null);
+      return;
+    }
+    let cancelled = false;
+    Promise.all([
+      hasRegisteredBiometric(session.user.id),
+      isBiometricAvailable(),
+    ]).then(([hasCredential, available]) => {
+      if (cancelled) return;
+      setBioCheck({ hasCredential, available });
+      if (
+        !hasCredential &&
+        available &&
+        !localStorage.getItem("boxrate_biometric_prompted")
+      ) {
+        setShowBioPrompt(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
 
   if (loading) {
     return <div style={{ minHeight: "100vh", background: "var(--page-bg)" }} />;
@@ -50,6 +87,23 @@ export default function App() {
 
   if (!session) {
     return <Login signIn={signIn} />;
+  }
+
+  // Still checking whether this account has a fingerprint/Face ID registered.
+  if (bioCheck === null) {
+    return <div style={{ minHeight: "100vh", background: "var(--page-bg)" }} />;
+  }
+
+  if (bioCheck.hasCredential && !unlocked) {
+    return (
+      <Unlock
+        onUnlocked={() => {
+          sessionStorage.setItem("boxrate_unlocked", "1");
+          setUnlocked(true);
+        }}
+        onUsePassword={signOut}
+      />
+    );
   }
 
   function handleExtracted(rows, vendor) {
@@ -61,6 +115,15 @@ export default function App() {
     setOpenOrder({ vendorId, batchDate });
     setReturnScreen(from);
     setScreen("batchDetail");
+  }
+
+  async function handleSignOut() {
+    const ok = await confirm({
+      title: "Sign out?",
+      message: "You'll need to sign in again to use the app.",
+      confirmLabel: "Sign out",
+    });
+    if (ok) signOut();
   }
 
   let body;
@@ -162,7 +225,7 @@ export default function App() {
               <ShieldCheck size={17} />
             </UtilBtn>
           )}
-          <UtilBtn onClick={signOut} aria-label="Sign out">
+          <UtilBtn onClick={handleSignOut} aria-label="Sign out">
             <LogOut size={17} />
           </UtilBtn>
           <UtilBtn
@@ -173,6 +236,20 @@ export default function App() {
           </UtilBtn>
         </nav>
       )}
+      {showBioPrompt && (
+        <BiometricPrompt
+          onDone={() => {
+            localStorage.setItem("boxrate_biometric_prompted", "1");
+            setShowBioPrompt(false);
+            setBioCheck((b) => ({ ...b, hasCredential: true }));
+          }}
+          onSkip={() => {
+            localStorage.setItem("boxrate_biometric_prompted", "1");
+            setShowBioPrompt(false);
+          }}
+        />
+      )}
+      {confirmDialog}
     </>
   );
 }

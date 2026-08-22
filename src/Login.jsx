@@ -23,6 +23,7 @@ export default function Login({ signIn }) {
     setLoading(true);
     try {
       await signIn(email.trim(), password);
+      sessionStorage.setItem("boxrate_unlocked", "1");
     } catch (err) {
       setError(err.message || "Couldn't sign in.");
     } finally {
