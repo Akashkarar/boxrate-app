@@ -121,32 +121,9 @@ export default function App() {
     <>
       {body}
 
-      <div className="no-print" style={topRightStackStyle}>
-        {isAdmin && (
-          <button
-            onClick={() => setScreen("admin")}
-            aria-label="Manage users"
-            style={iconStackBtnStyle}
-          >
-            <ShieldCheck size={16} />
-          </button>
-        )}
-        <button
-          onClick={signOut}
-          aria-label="Sign out"
-          style={iconStackBtnStyle}
-        >
-          <LogOut size={16} />
-        </button>
-        <button
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          aria-label="Toggle dark mode"
-          style={iconStackBtnStyle}
-        >
-          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
-      </div>
-
+      {/* All persistent controls live in ONE fixed bottom bar now — nothing
+          floats at the top of the screen anymore, so no screen's own header
+          can ever collide with it, regardless of how either one changes later. */}
       {showNav && (
         <nav className="no-print" style={navWrapStyle}>
           <NavBtn
@@ -173,6 +150,27 @@ export default function App() {
             active={screen === "vendors"}
             onClick={() => setScreen("vendors")}
           />
+
+          <div style={dividerStyle} />
+
+          {isAdmin && (
+            <UtilBtn
+              onClick={() => setScreen("admin")}
+              aria-label="Manage users"
+              active={screen === "admin"}
+            >
+              <ShieldCheck size={17} />
+            </UtilBtn>
+          )}
+          <UtilBtn onClick={signOut} aria-label="Sign out">
+            <LogOut size={17} />
+          </UtilBtn>
+          <UtilBtn
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle dark mode"
+          >
+            {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+          </UtilBtn>
         </nav>
       )}
     </>
@@ -206,6 +204,29 @@ function NavBtn({ icon, label, active, onClick }) {
   );
 }
 
+function UtilBtn({ icon, children, active, ...props }) {
+  return (
+    <button
+      {...props}
+      style={{
+        width: 38,
+        height: 38,
+        flexShrink: 0,
+        borderRadius: "50%",
+        background: active ? "rgba(255,255,255,0.14)" : "transparent",
+        border: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        color: active ? "#FF6B54" : "rgba(255,255,255,0.65)",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 const navWrapStyle = {
   position: "fixed",
   left: 14,
@@ -217,35 +238,18 @@ const navWrapStyle = {
   border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: 30,
   display: "flex",
+  alignItems: "center",
   padding: 6,
   gap: 4,
   boxShadow: "0 12px 32px rgba(0,0,0,0.35)",
-  maxWidth: 460,
+  maxWidth: 560,
   margin: "0 auto",
 };
 
-const topRightStackStyle = {
-  position: "fixed",
-  top: "calc(14px + env(safe-area-inset-top))",
-  right: 14,
-  display: "flex",
-  flexDirection: "row",
-  gap: 8,
-  zIndex: 50,
-};
-
-const iconStackBtnStyle = {
-  width: 38,
-  height: 38,
-  borderRadius: "50%",
-  border: "1px solid rgba(255,255,255,0.25)",
-  background: "rgba(22,20,17,0.55)",
-  backdropFilter: "blur(20px)",
-  WebkitBackdropFilter: "blur(20px)",
-  color: "#fff",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-  boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
+const dividerStyle = {
+  width: 1,
+  alignSelf: "stretch",
+  margin: "6px 2px",
+  background: "rgba(255,255,255,0.14)",
+  flexShrink: 0,
 };

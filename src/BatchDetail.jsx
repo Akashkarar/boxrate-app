@@ -305,30 +305,37 @@ export default function BatchDetail({
 
   return (
     <div style={{ ...pageStyle, paddingTop: 0 }} className="page-root">
-      <div style={{ maxWidth: 460, margin: "0 auto" }} className="content-wrap">
+      {/* A true fixed bar, not sticky — spans the full viewport edge-to-edge on
+          both mobile and desktop, so it can never be mistaken for a floating
+          card again. Nothing else is ever fixed to the top of the screen now,
+          so this has no other element to ever collide with. */}
+      <div
+        className="no-print"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          background: "var(--card-bg)",
+          backdropFilter: "blur(20px) saturate(160%)",
+          WebkitBackdropFilter: "blur(20px) saturate(160%)",
+          borderBottom: "1px solid var(--card-border)",
+          paddingTop: "env(safe-area-inset-top)",
+        }}
+      >
         <div
-          className="no-print"
-          style={{
-            position: "sticky",
-            top: 60,
-            zIndex: 20,
-            marginTop: 60,
-            paddingTop: "env(safe-area-inset-top)",
-            background: "var(--card-bg)",
-            backdropFilter: "blur(20px) saturate(160%)",
-            WebkitBackdropFilter: "blur(20px) saturate(160%)",
-            border: "1px solid var(--card-border)",
-            borderRadius: 20,
-          }}
+          className="content-wrap"
+          style={{ maxWidth: 460, margin: "0 auto" }}
         >
-          <div style={{ padding: "22px 18px 6px" }}>
+          <div style={{ padding: "14px 18px 6px" }}>
             <button onClick={onBack} style={backBtnStyle}>
               <ArrowLeft size={14} /> back to dashboard
             </button>
           </div>
           <div
             style={{
-              padding: "0 18px 18px",
+              padding: "0 18px 14px",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-end",
@@ -350,8 +357,14 @@ export default function BatchDetail({
             )}
           </div>
         </div>
+      </div>
 
-        {/* Print-only header — the sticky bar above is hidden on paper, so the
+      {/* The bar above is fixed (removed from normal flow), so this spacer
+          reserves the same amount of room in the actual scrollable content. */}
+      <div className="no-print" style={{ height: 118 }} />
+
+      <div style={{ maxWidth: 460, margin: "0 auto" }} className="content-wrap">
+        {/* Print-only header — the fixed bar above is hidden on paper, so the
             receipt still needs its own plain vendor name + date up top. */}
         <div className="print-only" style={{ padding: "10px 6px 18px" }}>
           <h1 style={titleStyle}>{vendorName || "Order"}</h1>
