@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@simplewebauthn/browser": "^13.3.0",
     "@supabase/supabase-js": "^2.112.2",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
