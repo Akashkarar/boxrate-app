@@ -137,6 +137,9 @@ html.dark {
     padding-left: 40px !important;
     padding-right: 40px !important;
   }
+  .pdf-dialog-col {
+    max-width: 760px !important;
+  }
 }
 
 .print-only {

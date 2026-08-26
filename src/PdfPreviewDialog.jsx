@@ -93,7 +93,11 @@ export default function PdfPreviewDialog({ blob, filename, onClose }) {
 
   return (
     <div style={overlayStyle} onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} style={columnStyle}>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={columnStyle}
+        className="pdf-dialog-col"
+      >
         <div style={{ ...cardStyle, ...dialogCardStyle }}>
           <div style={headerStyle}>
             <span
