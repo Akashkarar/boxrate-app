@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 
 // jsPDF's built-in fonts don't include the ₹ glyph, so PDFs use "Rs" instead.
 // The in-app UI keeps showing ₹ everywhere else — this only affects exported PDFs.
-const fmtPdf = (n) => "Rs " + Number(n || 0).toFixed(2);
+const fmtPdf = (n) => "Rs. " + Number(n || 0).toFixed(2);
 
 export function buildOrderPdf({ vendorName, batchDate, items }) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -37,6 +37,8 @@ export function buildOrderPdf({ vendorName, batchDate, items }) {
     fmtPdf(it.unit_price),
     fmtPdf(it.total_price),
   ]);
+
+  const rowBoundaries = []; // drawn AFTER the whole table finishes, so nothing paints over them
 
   autoTable(doc, {
     startY: y + 18,
@@ -96,24 +98,31 @@ export function buildOrderPdf({ vendorName, batchDate, items }) {
         doc.setTextColor(0, 0, 0);
       }
 
-      // Draw one explicit separator line per row, once all its cells are
-      // known — this avoids relying on autoTable's automatic per-cell
-      // borders, which render inconsistently when one column (the
-      // description) has a taller forced height than the others in the
-      // same row.
+      // Record where this row's separator line goes — don't draw it yet,
+      // since the next row's background gets painted right after this and
+      // would erase a line drawn here immediately.
       const isLastColumn = data.column.index === data.table.columns.length - 1;
       if (isLastColumn) {
         const lineY = Math.round(data.cell.y + data.cell.height) + 0.5;
-        const left = data.table.settings.margin.left;
-        const right = pageWidth - data.table.settings.margin.right;
-        doc.setLineWidth(data.row.section === "head" ? 1 : 0.75);
-        doc.setDrawColor(
-          ...(data.row.section === "head" ? [20, 20, 20] : [200, 200, 200]),
-        );
-        doc.line(left, lineY, right, lineY);
+        rowBoundaries.push({
+          y: lineY,
+          isHead: data.row.section === "head",
+          page: data.pageNumber,
+        });
       }
     },
   });
+
+  // Now draw every collected line, on the correct page for each — this runs
+  // strictly after all cell backgrounds are already painted, so nothing can
+  // cover these lines afterward.
+  for (const b of rowBoundaries) {
+    doc.setPage(b.page);
+    doc.setLineWidth(b.isHead ? 1 : 0.75);
+    doc.setDrawColor(...(b.isHead ? [20, 20, 20] : [200, 200, 200]));
+    doc.line(marginX, b.y, pageWidth - marginX, b.y);
+  }
+  doc.setPage(doc.internal.getNumberOfPages());
 
   const finalY = doc.lastAutoTable.finalY + 24;
   doc.setFont("helvetica", "bold");
